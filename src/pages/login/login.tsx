@@ -1,8 +1,24 @@
-import {Button, Card, Checkbox, Flex, Form, Input, Layout, Space} from 'antd'
+import {Alert, Button, Card, Checkbox, Flex, Form, Input, Layout, message, Space} from 'antd'
 import 'antd/dist/reset.css'
 import {LockFilled, LockOutlined, UserOutlined} from '@ant-design/icons'
 import Logo from '../../components/icons/Logo'
+import { useMutation } from '@tanstack/react-query'
+import type { Credentails } from '../../types'
+import { login } from '../../http/api'
+
+const loginUser = async (credentails : Credentails)=>{
+  //server call login
+ const {data} =  await login(credentails)
+ return data
+}
 const LoginPage = () => {
+  const {mutate, isPending, isError, error} = useMutation({
+    mutationKey: ['login'],
+    mutationFn: loginUser,
+    onSuccess: async () =>{
+      console.log('Login successful')
+    }
+  }) 
   return <>
     <Layout style={{height: '100vh', display: 'grid', placeItems: 'center'}}>
       <Space direction='vertical' align='center' size='large'>
@@ -19,7 +35,21 @@ const LoginPage = () => {
           Sign in
         </Space>
         }>
-          <Form initialValues={{remember: true}}>
+          <Form 
+          initialValues={{remember: true}}
+          onFinish={(values)=>{
+            mutate({email: values.username, password: values.password})
+            console.log(values)
+          }}
+          >
+            {isError && ( 
+           <Alert 
+            style={{marginBottom: 24}} 
+            type='error'
+             message={error?.message}
+            
+            />
+          )}
             <Form.Item name='username' rules={[
               {
                 required: true,
@@ -46,7 +76,7 @@ const LoginPage = () => {
               <a href="" id='login-form-forgot'>Forget password</a>
             </Flex>
                <Form.Item>
-              <Button type='primary' htmlType='submit' style={{width: '100%'}}>
+              <Button type='primary' htmlType='submit' style={{width: '100%'}} loading={isPending}>
                 Log in
               </Button>
             </Form.Item>
