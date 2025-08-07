@@ -11,6 +11,7 @@ export interface User {
 interface AuthState {
     user: null | User
     setUser: (user: User) => void
+    logout: ()=> void
 }
 
 export const useAuthStore = create<AuthState>()(

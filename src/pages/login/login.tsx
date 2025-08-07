@@ -3,10 +3,10 @@ import 'antd/dist/reset.css'
 import {LockFilled, LockOutlined, UserOutlined} from '@ant-design/icons'
 import Logo from '../../components/icons/Logo'
 import { useMutation, useQuery } from '@tanstack/react-query'
-import type { Credentails } from '../../types'
-import { login, self } from '../../http/api'
-import { useAuthStore } from '../../store'
-
+import type { Credentails } from '../../../types'
+import { login, self, logout } from '../../http/api'
+import { useAuthStore } from '../../../store'
+import {usePermission} from '../../../hooks/usePermission'
 const loginUser = async (credentails : Credentails)=>{
   //server call login
  const {data} =  await login(credentails)
@@ -18,8 +18,9 @@ const getSelf = async ()=>{
   return data
 }
 const LoginPage = () => {
-  const { setUser} = useAuthStore()
-  const {data: selfData, refetch} = useQuery({
+  const { isAllowed} = usePermission()
+  const {setUser, logout: logoutFromStore } = useAuthStore()
+  const {refetch} = useQuery({
     queryKey: ['self'],
     queryFn: getSelf,
     enabled: false,
@@ -29,6 +30,14 @@ const LoginPage = () => {
     mutationFn: loginUser,
     onSuccess: async () =>{
     const selfDataPromise = await refetch()
+    //logout or redirect to client ui
+    //window.location.href = "http://clientui/url"
+    if(!isAllowed(selfDataPromise.data)){
+      await logout()
+      logoutFromStore()
+      return
+    }
+
       setUser(selfDataPromise.data)
     }
   }) 
