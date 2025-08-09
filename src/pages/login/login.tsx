@@ -17,14 +17,17 @@ const getSelf = async ()=>{
   const {data} =  await self()
   return data
 }
+
 const LoginPage = () => {
   const { isAllowed} = usePermission()
   const {setUser, logout: logoutFromStore } = useAuthStore()
+
   const {refetch} = useQuery({
     queryKey: ['self'],
     queryFn: getSelf,
     enabled: false, 
   }) 
+
   const {mutate: logoutMutate}= useMutation({
     mutationKey: ['logout'],
     mutationFn: logout,

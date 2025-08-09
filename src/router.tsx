@@ -3,9 +3,14 @@ import HomePage from "./pages/HomePage"
 import LoginPage from "./pages/login/login";
 import Dashboard from "./layouts/Dashboard";
 import NonAuth from "./layouts/NonAuth";
+import Root from "./layouts/Root";
 export const router = createBrowserRouter([
     {
-        path: '/',
+      path: '/',
+      element: <Root/>,
+      children: [
+        {
+        path: '',
         element: <Dashboard/>,
         children: [
             {
@@ -25,4 +30,7 @@ export const router = createBrowserRouter([
             }
         ]
     },
+      ]
+    },
+    
 ])
