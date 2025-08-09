@@ -1,4 +1,4 @@
-import {User} from "../store"
+import {type User} from "../store"
 export const usePermission = ()=>{
     const allowedRoles = ['admin', 'manager']
     const _hashPermission = (user:User  | null)=>{
