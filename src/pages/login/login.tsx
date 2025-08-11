@@ -1,12 +1,14 @@
-import {Alert, Button, Card, Checkbox, Flex, Form, Input, Layout, message, Space} from 'antd'
+import {Alert, Button, Card, Checkbox, Flex, Form, Input, Layout,  Space} from 'antd'
 import 'antd/dist/reset.css'
 import {LockFilled, LockOutlined, UserOutlined} from '@ant-design/icons'
 import Logo from '../../components/icons/Logo'
 import { useMutation, useQuery } from '@tanstack/react-query'
 import type { Credentails } from '../../../types'
-import { login, self, logout } from '../../http/api'
-import { useAuthStore } from '../../../store'
+import { login, self } from '../../http/api'
 import {usePermission} from '../../../hooks/usePermission'
+import {useLogoutUser} from '../../../hooks/useLogoutUser'
+import {useAuthStore} from '../../../store'
+
 const loginUser = async (credentails : Credentails)=>{
   //server call login
  const {data} =  await login(credentails)
@@ -19,8 +21,9 @@ const getSelf = async ()=>{
 }
 
 const LoginPage = () => {
+  const {setUser} = useAuthStore()
+  const {_logout} = useLogoutUser()
   const { isAllowed} = usePermission()
-  const {setUser, logout: logoutFromStore } = useAuthStore()
 
   const {refetch} = useQuery({
     queryKey: ['self'],
@@ -28,14 +31,6 @@ const LoginPage = () => {
     enabled: false, 
   }) 
 
-  const {mutate: logoutMutate}= useMutation({
-    mutationKey: ['logout'],
-    mutationFn: logout,
-    onSuccess: async ()=>{
-      logoutFromStore()
-      return
-    }
-  })
   const {mutate, isPending, isError, error} = useMutation({
     mutationKey: ['login'],
     mutationFn: loginUser,
@@ -44,7 +39,7 @@ const LoginPage = () => {
     //logout or redirect to client ui
     //window.location.href = "http://clientui/url"
     if(!isAllowed(selfDataPromise.data)){
-      logoutMutate()
+      _logout()
       return
     }
 
