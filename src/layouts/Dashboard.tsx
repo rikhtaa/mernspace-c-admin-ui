@@ -1,9 +1,9 @@
 import { Navigate, NavLink, Outlet } from "react-router-dom"
 import { useAuthStore } from "../../store"
-import { Layout, Menu, theme } from "antd"
+import { Avatar, Badge, Button, Dropdown, Flex, Layout, Menu, Space, theme } from "antd"
 import Sider from "antd/es/layout/Sider"
 import { Content, Footer, Header } from "antd/es/layout/layout"
-import Icon from "@ant-design/icons"
+import Icon, { BellFilled } from "@ant-design/icons"
 import { useState } from "react"
 import Logo from "../components/icons/Logo"
 import Home from "../components/icons/Home"
@@ -11,6 +11,7 @@ import Product from "../components/icons/Product"
 import { foodIcon } from "../components/icons/FoodIcon"
 import UserIcon from "../components/icons/UserIcon"
 import GiftIcon from "../components/icons/GiftIcon"
+import {useLogoutUser} from '../../hooks/useLogoutUser'
 const items = [
   {
     key: '/',
@@ -38,7 +39,11 @@ const items = [
     label: <NavLink to='/promos'>Promos</NavLink>
   },
 ]
+
+
+
 const Dashboard = () => { 
+ const { _logout} = useLogoutUser()
   const [collapsed, setCollapsed] = useState(false);
   const {
     token: { colorBgContainer },
@@ -57,7 +62,27 @@ const Dashboard = () => {
         <Menu theme="light" defaultSelectedKeys={['/']} mode="inline" items={items} />
       </Sider>
       <Layout>
-        <Header style={{ padding: 0, background: colorBgContainer }} />
+        <Header style={{ paddingLeft: '16px', paddingRight: '16px', background: colorBgContainer }}>
+      <Flex gap="middle" align="start" justify="space-between">
+        <Badge text='Global' status="success"/>
+        <Space size={16}>
+          <Badge dot={true}>
+            <BellFilled/>
+          </Badge>
+              <Dropdown menu={{ items:[
+                {
+                  key: 'logout',
+                  label: 'Logout',
+                  onClick: ()=>  _logout(),
+                }
+              ] }} placement="bottomRight" arrow>
+                    <Avatar style={{ backgroundColor: '#fde3cf', color: '#f56a00' }}>U</Avatar>
+
+              </Dropdown>
+        </Space>
+    </Flex>
+
+    </Header>
         <Content style={{ margin: '0 16px' }}>
                  <Outlet/>
         </Content>
