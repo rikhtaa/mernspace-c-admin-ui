@@ -1,9 +1,10 @@
 import { RightOutlined } from "@ant-design/icons"
 import { useQuery } from "@tanstack/react-query"
 import { Breadcrumb, Space, Table } from "antd"
-import { Link } from "react-router-dom"
+import { Link, Navigate } from "react-router-dom"
 import { getUsers } from "../../http/api"
 import type { User } from "../../../types"
+import { useAuthStore } from "../../../store"
 
 const columns = [
   {
@@ -36,12 +37,17 @@ const columns = [
   }
 ];
 const Users = () => {
+
 const {data: users, isLoading, isError, error} = useQuery({
   queryKey: ['users'],
   queryFn:  ()=>{
     return getUsers().then((res)=> res.data.data)
   }
 })
+  const {user} = useAuthStore()
+  if(user?.role !== 'admin'){
+    return <Navigate to="/" replace={true}/> 
+  }
   return <>
   <Space direction='vertical' size={'large'} style={{width: '100%'}}>
  <Breadcrumb separator={<RightOutlined/>} items={[{ title: <Link to="/">Dashboard</Link> }, {title: 'Users'}]} />

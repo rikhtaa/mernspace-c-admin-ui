@@ -1,6 +1,6 @@
 import { Navigate, NavLink, Outlet } from "react-router-dom"
 import { useAuthStore } from "../../store"
-import { Avatar, Badge, Button, Dropdown, Flex, Layout, Menu, Space, theme } from "antd"
+import { Avatar, Badge, Dropdown, Flex, Layout, Menu, Space, theme } from "antd"
 import Sider from "antd/es/layout/Sider"
 import { Content, Footer, Header } from "antd/es/layout/layout"
 import Icon, { BellFilled } from "@ant-design/icons"
@@ -12,16 +12,12 @@ import { foodIcon } from "../components/icons/FoodIcon"
 import UserIcon from "../components/icons/UserIcon"
 import GiftIcon from "../components/icons/GiftIcon"
 import {useLogoutUser} from '../../hooks/useLogoutUser'
-const items = [
-  {
+const getMenuItems = (role: string)=>{
+   const baseItems = [
+      {
     key: '/',
     icon: <Icon component={Home}/>,
     label: <NavLink to='/'>Home</NavLink>
-  },
-  {
-    key: '/users',
-    icon: <Icon component={UserIcon}/>,
-    label: <NavLink to='/users'>Users</NavLink>
   },
   {
     key: '/restaurants',
@@ -38,11 +34,23 @@ const items = [
     icon: <Icon component={GiftIcon}/>,
     label: <NavLink to='/promos'>Promos</NavLink>
   },
-]
-
-
-
-const Dashboard = () => { 
+   ] 
+   if(role === 'admin'){
+    const menus = [...baseItems]
+    menus.splice(1,0, {
+    key: '/users',
+    icon: <Icon component={UserIcon}/>,
+    label: <NavLink to='/users'>Users</NavLink>
+    })
+    return menus
+   }
+   return baseItems
+  }
+  
+  
+  
+  
+  const Dashboard = () => { 
  const { _logout} = useLogoutUser()
   const [collapsed, setCollapsed] = useState(false);
   const {
@@ -53,6 +61,7 @@ const Dashboard = () => {
   if(user === null){
     return <Navigate to='/auth/login' replace={true}/>
   }
+  const items = getMenuItems(user.role)
   return (
     <div>
       <Layout style={{ minHeight: '100vh' }}>
@@ -83,7 +92,7 @@ const Dashboard = () => {
     </Flex>
 
     </Header>
-        <Content style={{ margin: '0 16px' }}>
+        <Content style={{ margin: '24px' }}>
                  <Outlet/>
         </Content>
         <Footer style={{ textAlign: 'center' }}>
