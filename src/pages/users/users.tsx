@@ -54,8 +54,10 @@ const {data: users, isLoading, isError, error} = useQuery({
  <Breadcrumb separator={<RightOutlined/>} items={[{ title: <Link to="/">Dashboard</Link> }, {title: 'Users'}]} />
  {isLoading && <div>Loading...</div>}
  {isError && <div>{error.message}</div>}
- <UserFilter/>
- <Table  dataSource={users} columns={columns} pagination={false}/>;
+ <UserFilter onFilterChange={(filterName: string, filterValue: string) =>{
+   console.log(filterName, filterValue)
+ }}/>
+ <Table  dataSource={users} columns={columns} pagination={false} rowKey={'id'}/>;
   </Space>
   </>
 }
