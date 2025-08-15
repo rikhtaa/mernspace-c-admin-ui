@@ -5,3 +5,9 @@
 .logo{
     padding: 20px 30px; 
 }
+.ant-statistic-title {
+  margin-bottom: 0 !important;
+}
+.ant-statistic-content{
+ line-height: 1.1;
+}

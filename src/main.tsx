@@ -15,6 +15,13 @@ createRoot(document.getElementById('root')!).render(
       token: {
         colorPrimary: '#F65F42',
         colorLink: '#F65F42',
+      },
+      components:{
+        Statistic: {
+          titleFontSize: 16,
+         colorTextDescription: 'black',
+         
+        }as any
       }
     }}>
     <RouterProvider router={router}/>
