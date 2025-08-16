@@ -28,10 +28,10 @@ const Tenants = () => {
 
   ]
   
-  const {data: users,  isLoading,
+  const {data: tenants,  isLoading,
     isError,
     error,} = useQuery({
-      queryKey: ['users'],
+      queryKey: ['tenants'],
       queryFn: ()=>{
         return getTenants().then((res)=> res.data.data)
       }
@@ -60,7 +60,7 @@ const Tenants = () => {
         Add Restaurant
         </Button>
     </TenantsFilter>
-    <Table dataSource={users}  columns={columns} pagination={false}/>
+    <Table dataSource={tenants}  columns={columns} pagination={false}/>
     </Space>
      <Drawer
      width={720} destroyOnHidden={true}
