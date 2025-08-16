@@ -1,12 +1,13 @@
 import { PlusOutlined, RightOutlined } from "@ant-design/icons"
 import { useQuery } from "@tanstack/react-query"
-import { Breadcrumb, Button, Drawer, Space, Table } from "antd"
+import { Breadcrumb, Button, Drawer, Form, Space, Table, theme } from "antd"
 import { Link, Navigate } from "react-router-dom"
 import { getUsers } from "../../http/api"
 import type { User } from "../../../types"
 import { useAuthStore } from "../../../store"
 import UserFilter from "./UserFilter"
 import { useState } from "react"
+import UserForm from "./forms/UserForm"
 
 const columns = [
   {
@@ -39,6 +40,9 @@ const columns = [
   }
 ];
 const Users = () => {
+  const {
+    token: {colorBgLayout},
+  } = theme.useToken()
   const [drawerOpen, setDrawerOpen] = useState(false)
 
 const {data: users, isLoading, isError, error} = useQuery({
@@ -74,6 +78,7 @@ const {data: users, isLoading, isError, error} = useQuery({
  onClose={()=> {
   setDrawerOpen(false)
  }}
+ styles={{body: {background: colorBgLayout}}}
   open={drawerOpen}
   extra={
     <Space>
@@ -82,7 +87,9 @@ const {data: users, isLoading, isError, error} = useQuery({
     </Space>
   }
   >
-  
+    <Form layout="vertical">
+     <UserForm/>
+    </Form>
  </Drawer>
   </Space>
   </>
