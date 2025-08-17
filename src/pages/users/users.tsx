@@ -1,9 +1,9 @@
 import { PlusOutlined, RightOutlined } from "@ant-design/icons"
-import { useQuery } from "@tanstack/react-query"
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { Breadcrumb, Button, Drawer, Form, Space, Table, theme } from "antd"
 import { Link, Navigate } from "react-router-dom"
-import { getUsers } from "../../http/api"
-import type { User } from "../../../types"
+import { createUser, getUsers } from "../../http/api"
+import type { CreateUserData, User } from "../../../types"
 import { useAuthStore } from "../../../store"
 import UserFilter from "./UserFilter"
 import { useState } from "react"
@@ -40,11 +40,14 @@ const columns = [
   }
 ];
 const Users = () => {
+  const [form] =Form.useForm()
+  const QueryClient = useQueryClient()
+
   const {
     token: {colorBgLayout},
   } = theme.useToken()
-  const [drawerOpen, setDrawerOpen] = useState(false)
-
+  
+const [drawerOpen, setDrawerOpen] = useState(false)
 const {data: users, isLoading, isError, error} = useQuery({
   queryKey: ['users'],
   queryFn:  ()=>{
@@ -52,6 +55,23 @@ const {data: users, isLoading, isError, error} = useQuery({
   }
 })
   const {user} = useAuthStore()
+
+  const {mutate: userMutate} = useMutation({
+    mutationKey: ['user'],
+    mutationFn: async(data: CreateUserData)=> createUser(data).then((res)=> res.data),
+    onSuccess: async ()=>{
+      QueryClient.invalidateQueries({queryKey: ['users']})
+      return 
+    }
+  })
+
+  const onHandlerSubmit = async()=>{
+    await form.validateFields()
+    console.log('Form values', form.getFieldValue())
+    await userMutate(form.getFieldValue())
+    form.resetFields()
+    setDrawerOpen(false)
+  }
   if(user?.role !== 'admin'){
     return <Navigate to="/" replace={true}/> 
   }
@@ -72,22 +92,26 @@ const {data: users, isLoading, isError, error} = useQuery({
    </Button>
 
   </UserFilter>
- <Table  dataSource={users} columns={columns} pagination={false} rowKey={'id'}/>;
+ <Table  dataSource={users} columns={columns} pagination={false} rowKey={'id'}/>
 
  <Drawer title="Create user" width={720} destroyOnHidden={true} 
  onClose={()=> {
+  form.resetFields()
   setDrawerOpen(false)
  }}
  styles={{body: {background: colorBgLayout}}}
   open={drawerOpen}
   extra={
     <Space>
-      <Button>Cancel</Button>
-      <Button type="primary">Submit</Button>
+      <Button onClick={()=>{
+         form.resetFields()
+        setDrawerOpen(false)}
+      }>Cancel</Button>
+      <Button type="primary" onClick={onHandlerSubmit}>Submit</Button>
     </Space>
   }
   >
-    <Form layout="vertical">
+    <Form layout="vertical" form={form}>
      <UserForm/>
     </Form>
  </Drawer>
