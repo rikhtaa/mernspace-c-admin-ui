@@ -1,38 +1,41 @@
-import { Card, Col, Input, Row, Select } from "antd"
+import { Card, Col, Form, Input, Row, Select } from "antd"
 import type React from "react"
 
 type UsersFilterProps = {
   children: React.ReactNode
-  onFilterChange: (filterName: string, filterValue: string) => void
 }
-const UserFilter = ({onFilterChange, children}: UsersFilterProps) => {
+const UserFilter = ({children}: UsersFilterProps) => {
   return <Card>
     <Row justify="space-between">
       <Col span={16}>
        <Row gutter={20}>
          <Col span={8}>
-         <Input.Search allowClear={true} placeholder="Search" onChange={(e)=> onFilterChange('searchFilter', e.target.value)}/>
+         <Form.Item name='q'>
+         <Input.Search allowClear={true} placeholder="Search"/>
+         </Form.Item>
           </Col>
          <Col span={8}>
+         <Form.Item name="role">
          <Select 
          style={{width: '100%'}} 
          allowClear={true} 
-         onChange={(selectedItem)=> onFilterChange('roleFilter', selectedItem)}
          placeholder="Select role">
            <Select.Option value="admin">Admin</Select.Option>
            <Select.Option value="user">Manager</Select.Option>
            <Select.Option value="customer">Customer</Select.Option>
          </Select>
+         </Form.Item>
          </Col>
          <Col span={8}>
+         <Form.Item name='status'>
            <Select 
            style={{width: '100%'}} 
            allowClear={true} 
-           onChange={(selectedItem)=> onFilterChange('statusFilter', selectedItem)}
            placeholder="Status">
              <Select.Option value="ban">Ban</Select.Option>
              <Select.Option value="active">Active</Select.Option>
            </Select>
+         </Form.Item>
          </Col>
        </Row>
       </Col>

@@ -3,7 +3,7 @@ import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tansta
 import { Breadcrumb, Button, Drawer, Flex, Form, Space, Spin, Table, theme, Typography } from "antd"
 import { Link, Navigate } from "react-router-dom"
 import { createUser, getUsers } from "../../http/api"
-import type { CreateUserData, User } from "../../../types"
+import type { CreateUserData, FieldData, User } from "../../../types"
 import { useAuthStore } from "../../../store"
 import UserFilter from "./UserFilter"
 import { useState } from "react"
@@ -42,6 +42,7 @@ const columns = [
 ];
 const Users = () => {
   const [form] =Form.useForm()
+  const [filterForm] = Form.useForm()
   const QueryClient = useQueryClient()
 
   const {
@@ -57,6 +58,8 @@ const [drawerOpen, setDrawerOpen] = useState(false)
 const {data: users, isFetching, isError, error} = useQuery({
   queryKey: ['users', queryParams],
   queryFn:  ()=>{
+
+    const filterParams = Object.fromEntries(Object.entries(queryParams).filter((item) => !!item[1]))
     const queryString = new URLSearchParams(
       queryParams as unknown as Record<string, string>
     ).toString()
@@ -78,10 +81,16 @@ const {data: users, isFetching, isError, error} = useQuery({
 
   const onHandlerSubmit = async()=>{
     await form.validateFields()
-    console.log('Form values', form.getFieldValue())
     await userMutate(form.getFieldValue())
     form.resetFields()
     setDrawerOpen(false)
+  }
+  const onFilterChange = (changedFields: FieldData[])=>{
+    const changeFiltersFields = changedFields.map((item)=>({
+      [item.name[0]]: item.value,
+    })).reduce((acc, item)=> ({...acc, ...item}), {})
+    setQueryParams((prev)=> ({...prev, ...changeFiltersFields}))
+    console.log(changeFiltersFields)
   }
   if(user?.role !== 'admin'){
     return <Navigate to="/" replace={true}/> 
@@ -95,10 +104,8 @@ const {data: users, isFetching, isError, error} = useQuery({
  )}
  {isError && <Typography.Text type="danger">{error.message}</Typography.Text>}
   </Flex>
- <UserFilter onFilterChange={(filterName: string, filterValue: string) =>{
-   console.log(filterName, filterValue)
- }}>
-
+  <Form form={filterForm} onFieldsChange={onFilterChange}>
+ <UserFilter>
    <Button type="primary" 
    icon={<PlusOutlined/>}
    onClick={()=> setDrawerOpen(true)}
@@ -107,6 +114,7 @@ const {data: users, isFetching, isError, error} = useQuery({
    </Button>
 
   </UserFilter>
+  </Form>
  <Table  
  dataSource={users?.data} 
  columns={columns} 
