@@ -6,9 +6,10 @@ import { createUser, getUsers } from "../../http/api"
 import type { CreateUserData, FieldData, User } from "../../../types"
 import { useAuthStore } from "../../../store"
 import UserFilter from "./UserFilter"
-import { useState } from "react"
+import React, { useState } from "react"
 import UserForm from "./forms/UserForm"
 import { PER_PAGE } from "../../constants"
+import { debounce } from "lodash"
 
 const columns = [
   {
@@ -85,12 +86,23 @@ const {data: users, isFetching, isError, error} = useQuery({
     form.resetFields()
     setDrawerOpen(false)
   }
+
+  const debouncedQUpdate = React.useMemo(()=> {
+    return debounce((value: string | undefined)=>{
+      setQueryParams((prev)=> ({...prev, q: value}))
+    }, 1000)
+  },[])
+  
   const onFilterChange = (changedFields: FieldData[])=>{
     const changeFiltersFields = changedFields.map((item)=>({
       [item.name[0]]: item.value,
     })).reduce((acc, item)=> ({...acc, ...item}), {})
-    setQueryParams((prev)=> ({...prev, ...changeFiltersFields}))
-    console.log(changeFiltersFields)
+     
+    if('q' in changeFiltersFields){
+      debouncedQUpdate(changeFiltersFields.q)
+    }else{
+      setQueryParams((prev)=> ({...prev, ...changeFiltersFields}))
+    }
   }
   if(user?.role !== 'admin'){
     return <Navigate to="/" replace={true}/> 
