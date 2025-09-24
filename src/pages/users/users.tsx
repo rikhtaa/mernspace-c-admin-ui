@@ -42,28 +42,24 @@ const columns = [
   }
 ];
 const Users = () => {
+  const [drawerOpen, setDrawerOpen] = useState(false)
   const [form] =Form.useForm()
   const [filterForm] = Form.useForm()
   const QueryClient = useQueryClient()
-
-  const {
-    token: {colorBgLayout},
-  } = theme.useToken()
-  
   const [queryParams, setQueryParams] = useState({
     perPage: PER_PAGE,
     currentPage: 1,
   })
 
-const [drawerOpen, setDrawerOpen] = useState(false)
+  const {
+    token: {colorBgLayout},
+  } = theme.useToken()
+  
+
 const {data: users, isFetching, isError, error} = useQuery({
   queryKey: ['users', queryParams],
   queryFn:  ()=>{
-
-    const filterParams = Object.fromEntries(Object.entries(queryParams).filter((item) => !!item[1]))
-    const queryString = new URLSearchParams(
-      queryParams as unknown as Record<string, string>
-    ).toString()
+    const queryString = new URLSearchParams(queryParams as unknown as Record<string, string>).toString()
     return getUsers(queryString).then((res)=> res.data)
   },
   placeholderData: keepPreviousData
@@ -82,7 +78,7 @@ const {data: users, isFetching, isError, error} = useQuery({
 
   const onHandlerSubmit = async()=>{
     await form.validateFields()
-    await userMutate(form.getFieldValue())
+    await userMutate(form.getFieldsValue())
     form.resetFields()
     setDrawerOpen(false)
   }
@@ -92,7 +88,7 @@ const {data: users, isFetching, isError, error} = useQuery({
       setQueryParams((prev)=> ({...prev, q: value}))
     }, 1000)
   },[])
-  
+
   const onFilterChange = (changedFields: FieldData[])=>{
     const changeFiltersFields = changedFields.map((item)=>({
       [item.name[0]]: item.value,
@@ -110,12 +106,14 @@ const {data: users, isFetching, isError, error} = useQuery({
   return <>
   <Space direction='vertical' size={'large'} style={{width: '100%'}}>
   <Flex justify="space-between">
-       <Breadcrumb separator={<RightOutlined/>} items={[{ title: <Link to="/">Dashboard</Link> }, {title: 'Users'}]} />
+  <Breadcrumb separator={<RightOutlined/>} items={[{ title: <Link to="/">Dashboard</Link> }, {title: 'Users'}]} />
  {isFetching && (
  <Spin indicator={<LoadingOutlined style={{fontSize: 24}}/>}/>
  )}
  {isError && <Typography.Text type="danger">{error.message}</Typography.Text>}
   </Flex>
+
+  
   <Form form={filterForm} onFieldsChange={onFilterChange}>
  <UserFilter>
    <Button type="primary" 
@@ -127,11 +125,12 @@ const {data: users, isFetching, isError, error} = useQuery({
 
   </UserFilter>
   </Form>
+
+
  <Table  
  dataSource={users?.data} 
  columns={columns} 
  rowKey={'id'}
-
  pagination={{
   total: users?.total,
   pageSize: queryParams.perPage,
@@ -164,11 +163,12 @@ const {data: users, isFetching, isError, error} = useQuery({
     </Space>
   }
   >
+
     <Form layout="vertical" form={form}>
      <UserForm/>
     </Form>
  </Drawer>
-  </Space>
+</Space>
   </>
 }
 
