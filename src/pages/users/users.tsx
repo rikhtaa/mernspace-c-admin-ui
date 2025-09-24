@@ -95,7 +95,7 @@ const {data: users, isFetching, isError, error} = useQuery({
 
   const debouncedQUpdate = React.useMemo(()=> {
     return debounce((value: string | undefined)=>{
-      setQueryParams((prev)=> ({...prev, q: value}))
+      setQueryParams((prev)=> ({...prev, q: value, currentPage: 1}))
     }, 500)
   },[])
 
@@ -107,7 +107,7 @@ const {data: users, isFetching, isError, error} = useQuery({
     if('q' in changeFiltersFields){
       debouncedQUpdate(changeFiltersFields.q)
     }else{
-      setQueryParams((prev)=> ({...prev, ...changeFiltersFields}))
+      setQueryParams((prev)=> ({...prev, ...changeFiltersFields, currentPage: 1}))
     }
   }
   if(user?.role !== 'admin'){

@@ -41,7 +41,7 @@ const Tenants = () => {
   
   const debouncedQUpdate = React.useMemo(()=>{
    return debounce((value: string | undefined)=>{
-    setQueryParams((prev)=>({...prev, q: value}))
+    setQueryParams((prev)=>({...prev, q: value, currentPage: 1}))
    }, 500)
   }, [])
   
@@ -81,7 +81,7 @@ const Tenants = () => {
       if('q' in onChangedFields){
         debouncedQUpdate(onChangedFields.q)
       }else{
-        setQueryParams((prev)=>({...prev, ...onChangedFields}))
+        setQueryParams((prev)=>({...prev, ...onChangedFields, currentPage: 1}))
       }
     }
 
