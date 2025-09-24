@@ -79,10 +79,10 @@ const UserForm = () => {
          size="large"
          style={{width: '100%'}} 
          allowClear={true} 
-         onChange={()=> {}}
+         onChange={()=> {}}  
          placeholder="Select role">
            <Select.Option value="admin">Admin</Select.Option>
-           <Select.Option value="user">Manager</Select.Option>
+           <Select.Option value="manager">Manager</Select.Option>
            <Select.Option value="customer">Customer</Select.Option>
          </Select>
           </Form.Item>
