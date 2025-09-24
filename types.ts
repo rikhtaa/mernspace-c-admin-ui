@@ -26,6 +26,11 @@ export type Tenant = {
     address: string;
 };
 
+export type CreateTenant ={
+    name: string;
+    address: string;
+}
+
 export type FieldData = {
     name: string[]
     value?: string
