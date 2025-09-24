@@ -1,13 +1,13 @@
 import { useQuery } from "@tanstack/react-query"
 import { Card, Col, Form, Input, Row, Select, Space } from "antd"
-import { getTenants } from "../../../http/api"
+import { getAllTenants } from "../../../http/api"
 import type { Tenant } from "../../../../types"
 
 const UserForm = () => {
     const {data: tenants} = useQuery({
       queryKey: ['tenants'],
       queryFn: ()=>{
-        return getTenants().then((res)=> res.data.data)
+        return getAllTenants().then((res)=> res.data.data)
       }
   }) 
   return <Row>
