@@ -3,7 +3,7 @@ import { Card, Col, Form, Input, Row, Select, Space } from "antd"
 import { getAllTenants } from "../../../http/api"
 import type { Tenant } from "../../../../types"
 
-const UserForm = () => {
+const UserForm = ({isEditMode = false} : {isEditMode : boolean}) => {
     const {data: tenants} = useQuery({
       queryKey: ['tenants'],
       queryFn: ()=>{
@@ -51,6 +51,8 @@ const UserForm = () => {
         </Col>
       </Row>
     </Card>
+    {
+      !isEditMode && (
     <Card title='Security info' variant={'borderless'}>
       <Row gutter={20}>
         <Col span={12}>
@@ -60,11 +62,13 @@ const UserForm = () => {
             message: 'Password is required'
           }   
         ]}>
-             <Input size="large" type="password"/>
+          <Input size="large" type="password"/>
           </Form.Item>
         </Col>
       </Row>
     </Card>
+      )
+    }
     <Card title='Role' variant={'borderless'}>
       <Row gutter={20}>
         <Col span={12}>
@@ -75,7 +79,8 @@ const UserForm = () => {
             message: 'Role is required'
           }   
         ]}>
-               <Select 
+        <Select 
+         id="selectBoxInUserForm"
          size="large"
          style={{width: '100%'}} 
          allowClear={true} 
