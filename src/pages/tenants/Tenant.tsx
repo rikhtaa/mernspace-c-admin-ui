@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { Breadcrumb, Button, Drawer, Form, Space, Table } from "antd"
 import React, { useState } from "react"
-import { createTenant, getTenants } from "../../http/api"
+import { createTenant, getTenants, updateTenant } from "../../http/api"
 import { PlusOutlined, RightOutlined } from "@ant-design/icons"
 import { useAuthStore } from "../../../store"
 import { Link, Navigate } from "react-router-dom"
@@ -15,6 +15,7 @@ const Tenants = () => {
     const [form] = Form.useForm();
     const [filterForm] = Form.useForm()
     const QueryClient = useQueryClient()
+    const [currentEditingTenat, setCurrentEditingTenat] = useState<Tenant | null>(null)
     const [queryParams, setQueryParams] = useState({
       perPage: PER_PAGE,
       currentPage: 1
@@ -53,7 +54,16 @@ const Tenants = () => {
       }
   }) 
 
-  const {mutate: userMutate} = useMutation({
+  const {mutate: updateTenantMutation}= useMutation({
+    mutationKey: ['update-tenant'],
+    mutationFn: async(data: CreateTenant)=> updateTenant(data, currentEditingTenat!.id).then((res)=> res.data), //change the id later
+    onSuccess: async ()=>{
+      QueryClient.invalidateQueries({queryKey: ['tenants']})
+      return
+    }
+  })
+
+  const {mutate: tenantMutate} = useMutation({
     mutationKey: ['tenant'],
     mutationFn: async(data: CreateTenant)=> createTenant(data).then((res)=> res.data),
     onSuccess: async ()=>{
@@ -63,11 +73,24 @@ const Tenants = () => {
   })
   const onHandlerSubmit = async()=>{
    await form.validateFields()
-   await userMutate(form.getFieldsValue())
+   const isEditMode = !!currentEditingTenat
+   if(isEditMode){
+     updateTenantMutation(form.getFieldsValue())
+   }else{
+    tenantMutate(form.getFieldsValue())
+   }
+   await tenantMutate(form.getFieldsValue())
    form.resetFields()
    setDrawerOpen(false)
   }
 
+
+  React.useEffect(()=>{
+    if(currentEditingTenat){
+      form.setFieldsValue({...currentEditingTenat})
+      setDrawerOpen(true)
+    }
+  }, [currentEditingTenat, form])
 
     if (user?.role !== 'admin'){
      return <Navigate to='/' replace={true}/>
@@ -111,7 +134,20 @@ const Tenants = () => {
 
     <Table 
     dataSource={tenants?.data}  
-    columns={columns} 
+    columns={[...columns, {
+      title: "Actions",
+      render: (_: string, record: Tenant)=>{
+        return(
+          <Space>
+            <Button type="link" onClick={()=>{
+              setCurrentEditingTenat(record)
+            }}>
+              Edit
+            </Button>
+          </Space>
+        )
+      }
+    }]} 
     rowKey={'id'}
     pagination={{
       total: tenants?.total,
@@ -131,10 +167,11 @@ const Tenants = () => {
     }}/>
 
     <Drawer
+     title={ currentEditingTenat ? 'Edit Restaurant' : 'Add Restaurant'}
      width={720} destroyOnHidden={true}
-     title="Create Tenant"
      onClose={()=>{
          form.resetFields()
+        setCurrentEditingTenat(null)
          setDrawerOpen(false)
           }
         }
